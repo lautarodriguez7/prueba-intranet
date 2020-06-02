@@ -54,88 +54,102 @@ if (!isset($_SESSION['id_usuario'])) {
     
     <section class="container-fluid contenedor-principal menu-tarjetas">
       <div class="col-md-11 col-xs-12 row contenedor-tarjetas-altas">
-         <form method="post" id="tar_formulario">
+        
+        <div>        	
+	        <form method="post" id="tar_datos_formulario">
+	            <div class="form-group" style="width: 13%; float: left; margin-right: 5%;">
+	              <label>Tipo de pago</label>
+	              <select class="form-control" onchange="tipoPago(this.value)">
+	                <option value="1">Boleta Impresa</option>
+	                <option value="2">Deuda</option>
+	              </select>
+	            </div>
 
-              <div class="form-group" style="width: 35%;">
-                <label>Nombre de afiliado</label>
-                <input type="text" class="form-control" placeholder="Juan Perez" id=""  required>
-              </div>
-              
-              
-            <!-- BUSCADOR QUE APARECE AL CLICKEAR EL AFILIADO -->
-              <div id="busqueda">
-                <button class="btn-dark cerrar_modal" id="btn-cerrar">✖</button>
+	            <div class="form-group" style="width: 38%; float:left" id="tar_div_cb">
+	              <label>Ingrese el Codigo de Barras</label>
+	              <input type="text" class="form-control" name="tar_codigo_barras" id="tar_codigo_barras" maxlength="40">
+	              <div id="tar_cb_datos" style="display:none; margin-top: 10px;">
+	                <label style="font-size: 0.85em; margin-bottom: 0;">NAF</label><input type="text" class="form-control" name="tar_cb_naf" id="tar_cb_naf" style="width: 25%;">
+	                <p id="tar_cb_apyno" style="margin-top: -32px; margin-left: 26%; margin-bottom: 0; font-size: 0.85em; font-weight: bold;"></p>
+	                <p id="tar_cb_estado" style="margin-top: -2px; margin-left: 26%; margin-bottom: 0; font-size: 0.85em; font-weight: bold;"></p>
+	                <label style="font-size: 0.85em; margin-bottom: 0;">MONTO</label><input type="text" class="form-control" name="tar_cb_monto" id="tar_cb_monto" style="width: 25%;">
+	                <label style="font-size: 0.85em; margin-bottom: 0;">VENCIMIENTO BOLETA</label><input type="text" class="form-control" name="tar_cb_venc" id="tar_cb_venc" style="width: 25%;">
+	                <p id="tar_cb_verif_venc"></p>
 
-                  <div id="buscador">
-                  <label for="apell" id="l-apell" class="l-busqueda">Apellido:</label>
-                  <input type="search" id="i-apellido" class="busqueda caracter">
-                  <span id="s-apellido" style="margin-left: 5px; border-radius: 5px; font-size:21px"></span>
-                  <input type="submit" value="Buscar" id="buscar" href="www.google.com.ar"> 
-                  </div>
+	                <div style="margin-top: 10px; margin-bottom: 20px; float:left; width: 100%;">
+	                	<a class="btn btn-sm btn-info text-center" id="tar_cancelar_cb">Cancelar</a>
+	                	<a class="btn btn-sm btn-info text-center" id="tar_carga_cb">Carga Boleta</a>
+	              	</div>
+	              </div>
+	              
+	            </div>
 
-                  <!-- <button id='buscar' type='searc'onclick="location.href='http://www.google.com'">BUSCAR</button>-->
-                  <div id="d-datos">
-                      <table id="tabla" class="table table-light table-hover">
-                          <tbody><tr>
-                          <td id="td-afiliado">NRO AFILIADO: <span id="sp-afiliado" class="sp-buscar"></span></td>
-                          <td>NOMBRE: <span id="sp-nombre" class="sp-buscar"></span></td>
-                          <td>APELLIDO: <span id="sp-apellido" class="sp-buscar"></span></td>
-                          <td>DNI: <span id="sp-dni" class="sp-buscar"></span></td>
-                          </tr>
-                      </tbody></table>
-                  </div>
-              </div>
+	            <div class="form-group" style="width: 10%; display:none; float:left" id="tar_div_naf">
+	              <label>Afiliado</label>
+	              <input type="text" class="form-control" name="tar_naf" id="tar_naf">
+	            </div>           
 
-              <div class="form-group" style="width: 35%;">
-                <label>Numero de la Tarjeta</label>
-                <input type="text" class="form-control" id="tar_numero" placeholder="**** - **** - **** - **** - ****" maxlength="24" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" required>
-              </div>
-                          
-              <div class="form-group" style="float:left; width: 13%;">
-                <label>Mes Vencimiento</label>
-                <select class="form-control" id="tar_vencim_mes" onchange="FechaCaducada()" required>
-                  <option value="0" selected>Seleccione</option>
-                <?php                  
+	        </form>        
+        </div> 
 
-                  for ($i=1; $i <= 12 ; $i++) {                     
-                    echo '<option value="'.str_pad($i, 1, '0', STR_PAD_LEFT). '">'.str_pad($i, 2, '0', STR_PAD_LEFT).'</option>';
-                  } 
-                ?>
-                </select>
-              </div>                
-              
-              <div class="form-group" style="float:left; width: 13%; margin-left: 5%;">
-                <label>Año Vencimiento</label>                
-                <select class="form-control" id="tar_vencim_anio" onchange='FechaCaducada()' required>
-                  <option value="0" selected>Seleccione</option>
-                <?php 
-                 $anio_actual= date('Y');
-                  $anio_maximo= $anio_actual+15;
+        <div id="tar_tabla_cb" style="float:left; width: 50%; display: none; box-shadow: grey 5px 5px 5px 5px; margin-top: 20px; margin-bottom: 50px;">
+            <table id="jqGrid-Tarjetas-cb" class="fondo_blanco">
+            </table>
+            <div id="jqGridPager-Tarjetas-cb" class="fondo_blanco">
+            </div>
+        </div>
 
-                  for ($i=$anio_actual; $i <= $anio_maximo ; $i++) {
-                    echo '<option value="'.$i. '">'.$i.'</option>';
-                  } 
-                  
-                ?>
-                </select>
-              </div>                
-              
-              <div class="form-group" style="width: 13%; display:none;">
-                  <label>Codigo de seguridad</label>
-                  <input type="text" class="form-control" placeholder="123" maxlength="3" id="tar_cvv" required>
-              </div>                     <br><br><br><br>
-              
-              <div class="form-group" style="float:left; width: 30%;">
-                <label>Nombre y apellido (Como aparece en la tarjeta)</label>
-                <input type="text" class="form-control" placeholder="" onkeypress="return soloLetras(event)" id="tar_nombre" required>
-              </div>
-              
-              <div style="margin-top: 30px; margin-bottom: 20px; float:left; width: 100%;">
-                <input class="btn btn-sm btn-info text-center" type="submit" id="tar_aceptar" value="Aceptar">
-              </div>
+        <div>        	
+	        <form method="post" id="tar_formulario">
+	          <div class="form-group" style="width: 35%;">
+	            <label>Numero de la Tarjeta</label>
+	            <input type="text" class="form-control" placeholder="1234 5678 9012 3456" id="tar_numero" required>
+	          </div>
+	                      
+	          <div class="form-group" style="float:left; width: 13%;">
+	            <label>Mes Vencimiento</label>
+	            <select class="form-control" id="tar_vencim_mes" required>
+	              <option value="0" selected>Seleccione</option>
+	            <?php                  
 
-            
-        </form>
+	              for ($i=1; $i <= 12 ; $i++) {                     
+	                echo '<option value="'.str_pad($i, 2, '0', STR_PAD_LEFT). '">'.str_pad($i, 2, '0', STR_PAD_LEFT).'</option>';
+	              } 
+	            ?>
+	            </select>
+	          </div>                
+	          
+	          <div class="form-group" style="float:left; width: 13%; margin-left: 5%;">
+	            <label>Año Vencimiento</label>                
+	            <select class="form-control" id="tar_vencim_anio" required>
+	              <option value="0" selected>Seleccione</option>
+	            <?php 
+	             $anio_actual= date('Y');
+	              $anio_maximo= $anio_actual+15;
+
+	              for ($i=$anio_actual; $i <= $anio_maximo ; $i++) {
+	                echo '<option value="'.$i. '">'.$i.'</option>';
+	              } 
+	              
+	            ?>
+	            </select>
+	          </div>                
+	          
+	          <div class="form-group" style="width: 13%;">
+	              <label>Codigo de seguridad</label>
+	              <input type="text" class="form-control" placeholder="123" maxlength="3" id="tar_cvv" required>
+	          </div>                          
+	          
+	          <div class="form-group" style="float:left; width: 30%;">
+	            <label>Nombre y apellido (Como aparece en la tarjeta)</label>
+	            <input type="text" class="form-control" placeholder="" id="tar_nombre" required>
+	          </div>
+	          
+	          <div style="margin-top: 30px; margin-bottom: 20px; float:left; width: 100%;">
+	            <input class="btn btn-sm btn-info text-center" type="submit" id="tar_aceptar" value="Aceptar">                
+	          </div>
+	        </form>
+        </div>
       </div>    
       
       <?php include('../barra_lateral.php'); ?>
